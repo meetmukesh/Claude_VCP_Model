@@ -81,7 +81,10 @@ db = get_database()
 
 # Sidebar
 with st.sidebar:
-    st.image("https://via.placeholder.com/200x80/1f77b4/ffffff?text=Elite+Scanner", use_container_width=True)
+    #st.image("https://via.placeholder.com/200x80/1f77b4/ffffff?text=Elite+Scanner", use_container_width=True)
+    # Logo/Header (using emoji instead of external image)
+    st.markdown("# 📈 Elite Scanner")
+    st.markdown("---")
     st.title("Navigation")
     
     page = st.radio(
