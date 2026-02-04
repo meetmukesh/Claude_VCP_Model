@@ -13,7 +13,7 @@ Professional swing trading scanner with database integration and Streamlit dashb
 
 ## Live Dashboard
 
-🚀 **Access here**: [Will be added after deployment]
+🚀 **Access here**: https://claude-vcp-model-app.streamlit.app/
 
 ## Automated Scans
 
