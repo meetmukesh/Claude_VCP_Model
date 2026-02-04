@@ -1,0 +1,23 @@
+# Core Dependencies
+yfinance==0.2.40
+pandas==2.2.2
+numpy==1.26.4
+sqlalchemy==2.0.30
+
+# Dashboard
+streamlit==1.38.0
+plotly==5.22.0
+
+# Utilities
+python-dotenv==1.0.1
+
+# Database (Optional - for PostgreSQL/MySQL)
+# Uncomment if using PostgreSQL
+# psycopg2-binary==2.9.9
+
+# Uncomment if using MySQL
+# pymysql==1.1.0
+
+# Scheduling (Optional - for automated scans)
+# schedule==1.2.1
+# APScheduler==3.10.4
