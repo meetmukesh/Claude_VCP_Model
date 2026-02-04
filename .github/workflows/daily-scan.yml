@@ -1,0 +1,39 @@
+name: Daily Trading Scanner
+
+on:
+  schedule:
+    # Run Mon-Fri at 13:00 UTC (18:30 IST)
+    - cron: '0 13 * * 1-5'
+  workflow_dispatch:
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Load stock universe
+      run: python load_stocks.py stocks_L.csv
+      env:
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    
+    - name: Run scanner
+      run: python scanner.py
+      env:
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    
+    - name: Update watchlist
+      run: python watchlist_monitor.py
+      env:
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
