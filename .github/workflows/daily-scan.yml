@@ -2,9 +2,8 @@ name: Daily Trading Scanner
 
 on:
   schedule:
-    # Run Mon-Fri at 13:00 UTC (18:30 IST)
-    - cron: '0 13 * * 1-5'
-  workflow_dispatch:
+    - cron: '30 9 * * 1-5'  # 3:00 PM IST (9:30 UTC)
+  workflow_dispatch:  # Allow manual trigger
 
 jobs:
   scan:
@@ -23,10 +22,17 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     
+    - name: Verify database connection
+      run: |
+        python -c "from database import DatabaseManager; db = DatabaseManager(); print('✓ Database connected')"
+      env:
+        DATABASE_URL: ${{ secrets.DATABASE_URL }}
+    
     - name: Load stock universe
       run: python load_stocks.py stocks_L.csv
       env:
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      continue-on-error: true
     
     - name: Run scanner
       run: python scanner.py
@@ -37,3 +43,4 @@ jobs:
       run: python watchlist_monitor.py
       env:
         DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      continue-on-error: true
