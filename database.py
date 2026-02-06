@@ -211,20 +211,52 @@ class PriceHistory(Base):
 class DatabaseManager:
     """Manages all database operations"""
     
-    def __init__(self, db_url='sqlite:///trading_scanner.db'):
+    def __init__(self, db_url=None):
         """
         Initialize database connection
         
         Args:
-            db_url: Database connection string
-                    Examples:
-                    - SQLite: 'sqlite:///trading_scanner.db'
-                    - PostgreSQL: 'postgresql://user:password@localhost:5432/trading_db'
-                    - MySQL: 'mysql+pymysql://user:password@localhost:3306/trading_db'
+            db_url: Database connection string (optional - will auto-detect)
         """
+        # Auto-detect database URL from environment
+        if db_url is None:
+            import os
+            
+            # Try environment variable first (GitHub Actions)
+            db_url = os.getenv('DATABASE_URL')
+            
+            # Try Streamlit secrets (Streamlit Cloud)
+            if db_url is None:
+                try:
+                    import streamlit as st
+                    if hasattr(st, 'secrets') and 'DATABASE_URL' in st.secrets:
+                        db_url = st.secrets['DATABASE_URL']
+                        logger.info("Using DATABASE_URL from Streamlit secrets")
+                except:
+                    pass
+            
+            # Fallback to SQLite for local dev
+            if db_url is None:
+                db_url = 'sqlite:///trading_scanner.db'
+                logger.warning("Using SQLite - dev mode")
+        
+        # Fix postgres:// to postgresql://
+        if db_url and db_url.startswith('postgres://'):
+            db_url = db_url.replace('postgres://', 'postgresql://', 1)
+        
         self.db_url = db_url
-        self.engine = create_engine(db_url, echo=False, pool_pre_ping=True)
-        self.Session = scoped_session(sessionmaker(bind=self.engine))
+        
+        # Log database type
+        if db_url.startswith('postgresql://'):
+            logger.info("✓ Using PostgreSQL (production)")
+        
+        try:
+            self.engine = create_engine(db_url, echo=False, pool_pre_ping=True)
+            self.Session = scoped_session(sessionmaker(bind=self.engine))
+            logger.info("Database connected successfully")
+        except Exception as e:
+            logger.error(f"Database connection failed: {e}")
+            raise
         logger.info(f"Database initialized: {db_url}")
     
     def create_tables(self):
